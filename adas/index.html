@@ -1,0 +1,141 @@
+<!--  		----- Quick tutorial -----
+
+1. All elements - buttons, inputs, checkboxes, etc. must be put in brackets as follows
+	<element_type additional_parameters>title or value</element_type>
+	it is important to note that some elements don't require the second <> in which case no '/' is needed at the end
+2. 'div' is usually just a group of elements.
+3. 'script' is additional source (you put .js, libraries, etc. here)
+4. javasript can find these UI elements by the id defined here
+5. events, such as 'onClick' trigger actions (usually functions) in javascript
+-->
+
+<!DOCTYPE html>
+<html>
+	<head> <!-- this is general information about the web app-->
+		<meta charset="UTF-8">
+		<title>
+			ADAS praktiskais uzdevums
+		</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">	</script> 
+		<script src="main.js"></script> 		
+		<style type="text/css"> <!-- this is CSS part for easier formatting later -->
+			.test {
+				padding: 20px;
+			}
+			.center {
+				text-align: center;
+			}
+			.container {
+				max-width:800px;
+				position: absolute;
+			}
+			.questions {
+				max-width:400px;
+			}
+			.button {
+				width: 120px;
+			}
+			.secondCheckbox {
+				left: 120px;
+				position: absolute;
+			}
+			.secondLabel {
+				left: 140px;
+				position: absolute;
+			}
+		</style>
+	</head>
+	
+
+	
+	<h1> <!-- this is heading 1 (predefined by html)--> 
+		Šeit ir virsraksts
+	</h1>
+	
+	<hr> <!-- this is horiontal line-->
+	
+	<body style="background-color:#ccffcc" class="container">	<!-- this is where the magic happens-->
+	
+		<div> 	<!-- this is test group for demonstration purposes-->	
+			<p>sample function</p>
+			<br><!-- this is line brake -->
+			<input id="inputTest1" placeholder="first value"></input>				
+			<input id="inputTest2" placeholder="second value"></input>
+			<br> <!-- this is line brake -->	
+			<input id="inputTest3" placeholder="result"></input>
+			<button id="buttonTest" onclick="testFunctionCalculate()"> 
+				Multiply
+			</button>
+		</div>	
+		
+		<hr> <!-- this is horiontal line-->		
+		
+		<!-- Convenience buttons -->
+		<button onclick="checkAll(1)" class="button">Select all</button>		
+		<button onclick="checkAll(2)" class="button">Select all</button><br>
+		<button onclick="unCheckAll(1)" class="button">Deselect all</button>
+		<button onclick="unCheckAll(2)" class="button">Deselect all</button><br>		
+		
+		<!-- All questions/answers should go here -->
+		<div class="questions" id="questionDiv">
+			<div>
+				<p>Jautājums 1</p>
+				<input type="checkbox" id="checkbox11"></input>
+				<label>Jā</label>
+				<input type="checkbox" id="checkbox12" class="secondCheckbox"></input>
+				<label class="secondLabel">Nē</label>				
+			<br>
+			</div>
+			<div>
+				<p>Jautājums 2</p>
+				<input type="checkbox" id="checkbox21"></input>
+				<label>10</label>
+				<input type="checkbox" id="checkbox22" class="secondCheckbox"></input>
+				<label class="secondLabel">0</label>				
+			<br>
+			</div>
+			<div>
+				<p>Jautājums 3</p>
+				<input type="checkbox" id="checkbox31"></input>
+				<label>Ir</label>
+				<input type="checkbox" id="checkbox32" class="secondCheckbox"></input>
+				<label class="secondLabel">Nav</label>				
+			<br>
+			</div>
+			<div>
+				<p>Jautājums 4</p>
+				<input type="checkbox" id="checkbox41"></input>
+				<label>Jā</label>
+				<input type="checkbox" id="checkbox42" class="secondCheckbox"></input>
+				<label class="secondLabel">Nē</label>				
+			<br>
+			</div>
+			<div>
+				<p>Jautājums 5</p>
+				<input type="checkbox" id="checkbox51"></input>
+				<label>Garšo</label>
+				<input type="checkbox" id="checkbox52" class="secondCheckbox"></input>
+				<label class="secondLabel">Negaršo</label>				
+			<br>
+			</div>
+		</div>
+		
+		<!-- Last 2 buttons -->
+		<div style="margin-top:10px; margin-bottom:10px">
+			<button id="buttonConfirm" onclick="buttonPressResults()" class="button"> Iesniegt atbildes </button>
+			<button id="buttonClear" onclick="buttonPressClearLocalStorage()" class="button">Notīrīt atmiņu </button>			
+		</div>
+		
+		<!-- Drawing board -->
+		<div>
+			<canvas id="myCanvas" 
+			style="border:1px solid #d3d3d3;" 
+			height="320"
+			width="600px">
+				Your browser does not support canvas
+			</canvas>
+		</div>			
+
+	</body>
+	
+</html>
