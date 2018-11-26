@@ -1,5 +1,9 @@
-/*		----- Quick tutorial -----
-1. All variables in js can be defined as 'var'. Objects, functions, strings, int, etc. = var 
+/*		
+
+------------------------------ Quick tutorial on Javascript ------------------------------
+
+1. All variables in js can be defined as 'var'. Objects, functions, strings, int, etc. = var
+   New js supports const and let variables but for simplicity ignore that in here 
 2. Because of this a good practise is to identify variable name by its type	
 	by putting i for integer, s for string, etc. in the name as iVariable, sVariable etc.
 3. To debug, simply write 'debugger' in a new line and press F12 in browser. 
@@ -8,21 +12,43 @@
 
 */
 
-function testFunctionCalculate(){ //for demonstration purposes
-	var fFirstValue = document.getElementById("inputTest1").value;
-	var fSecondValue = document.getElementById("inputTest2").value;
-	var iResult = Math.round(fFirstValue * fSecondValue);
-	document.getElementById("inputTest3").value = iResult;
-	console.log("this is first input: " + fFirstValue);
-	console.log(`this is second input: ${fSecondValue}`);
-	console.log('this is result:' + iResult);
-	//debugger
-	//uncomment line above to stop code there (while F12 or debugger tab is open)
-}
+/*
+
+------------------------------ Points of notice for editing ------------------------------
+
+1. Currently this app supports max 10 custom questions. If you change the number, 
+   please edit integers in functions checkAll() and buttonRefreshTable()
+2. Currently this app supports only yes/no answers for questions expecting true/false values.
+   Question titles do not matter, matters the answer - true/false
+
+
+*/
+
+/*
+
+------------------------------ Utility and UI functions ------------------------------
+
+*/
 
 function getElement(id){
 	//just shortens code
 	return document.getElementById(id);
+}
+
+function parseBoolean(bool){
+	//parse true to 1 and false to 0
+	return bool ? 1 : 0
+}
+
+function check(iRow, iColumn, bChecked){
+	//sets checkbox element to true or false
+	var sId = "checkbox" + iRow + iColumn;
+	getElement(sId).checked = bChecked;
+}
+
+function swapCheckbox(sWhichOne){
+	var sId = "checkbox" + sWhichOne;
+	getElement(sId).checked = false;
 }
 
 function isChecked(id){
@@ -30,119 +56,162 @@ function isChecked(id){
 	return getElement(id).checked;
 }
 
-function getAllCheckboxArray(){
-	var oContainer = getElement('questionDiv');
-	var aInputs = oContainer.getElementsByTagName('input');
-	var aCheckboxes = [];
-	
-	//returns an array of objects with all checkbox id's and their values
-	//[{id: "checkbox11", value: true}, {...}, ...]
-	//should work always no matter how many checkboxes as long as they are 
-	//under the <div id="questionDiv"> in index.html
-	//you can access this arrays properties later using
-	//aCkeckboxes[element].id or aCheckboxes[element].value
-	
-	for (var i = 0; i < aInputs.length; i++) {
-		var bValue = isChecked(aInputs[i].id);
-		var sId = aInputs[i].id;
-		aCheckboxes.push(
-			{
-				id: sId,
-				value: bValue
-			}
-		)
+function populateSubmission(){
+	var iCount = readLocalStorage("userSubmissionCount");
+	getElement("ZB").value = iCount;
+}
+
+function populateTable(iRow){
+	var table = getElement("idTable");
+	var oldTable = table.getElementsByTagName('tbody')[0];
+	//creates new table data rows
+	var newTable = document.createElement("tbody");
+	for (var i = 0; i < iRow; i++){
+		var row = newTable.insertRow(i);
+		var cell1 = row.insertCell(0);
+		var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);
+		var cell4 = row.insertCell(3);
+		cell1.innerHTML = i + 1;
+		cell2.innerHTML = countCellAnswers(i, 1);
+		cell3.innerHTML = countCellAnswers(i, 2);
+		cell4.innerHTML = countCellAnswers(i, 3);
 	}
-	//i may have overdone this but we have results from every single checkbox here
-	return aCheckboxes;
+	//deletes old table data rows
+	oldTable.parentNode.replaceChild(newTable, oldTable);
+}
+
+function countCellAnswers(iRow, iCell){
+	var data = readLocalStorage("data");
+	var aQuestionAnswers = data.map(x=>x[iRow].answer);
+	var iTrue = aQuestionAnswers.filter(x => x === true).length;
+	var iFalse = aQuestionAnswers.filter(x => x === false).length;
+	var iNull = aQuestionAnswers.filter(x => x === null || x === undefined).length;
+	return iCell === 1 ? iTrue : iCell === 2 ? iFalse : iNull  
+} 
+
+function createBlankLocalStorageModule(){
+	//create these object attributes becauses we had cleared browser cookies
+	var emptyArr = [];
+	localStorage.setItem("data", JSON.stringify(emptyArr));
+	localStorage.userSubmissionCount = 0;
+}
+
+function readLocalStorage(id){
+	return JSON.parse(localStorage.getItem(id));
 }
 
 function applyArrayToLocalStorage(aCheckboxes){
 	//add this submission to our 'database'
-	localStorage.firstAnswer = parseInt(localStorage.firstAnswer) + parseBoolean(aCheckboxes[0].value);
-	localStorage.secondAnswer = parseInt(localStorage.secondAnswer) + parseBoolean(aCheckboxes[1].value);
-	localStorage.thirdAnswer = parseInt(localStorage.thirdAnswer) + parseBoolean(aCheckboxes[2].value);
-	localStorage.fourthAnswer = parseInt(localStorage.fourthAnswer) + parseBoolean(aCheckboxes[3].value);
-	localStorage.fifthAnswer = parseInt(localStorage.fifthAnswer) + parseBoolean(aCheckboxes[4].value);
-	localStorage.sixthAnswer = parseInt(localStorage.sixthAnswer) + parseBoolean(aCheckboxes[5].value);
-	localStorage.seventhAnswer = parseInt(localStorage.seventhAnswer) + parseBoolean(aCheckboxes[6].value);
-	localStorage.eigthAnswer = parseInt(localStorage.eigthAnswer) + parseBoolean(aCheckboxes[7].value);
-	localStorage.ninthAnswer = parseInt(localStorage.ninthAnswer) + parseBoolean(aCheckboxes[8].value);
-	localStorage.tenthAnswer = parseInt(localStorage.tenthAnswer) + parseBoolean(aCheckboxes[9].value);
+	var oldAnswers = readLocalStorage("data");
+	oldAnswers.push(aCheckboxes);
+	localStorage.setItem("data", JSON.stringify(oldAnswers));
 }
 
-function parseBoolean(bool){
-	//parse true to 1 and false to 0
-	if (bool){
-		return 1;
-	} else {
-		return 0;
-	}
-}
+/*
 
-function checkAll(iRow) {
-	//just change the number below if more/less questions
-	var iNumberOfQuestions = 5;
+------------------------------ Button functions ------------------------------
+
+*/
+
+function checkAll(iColumn, bChecked) {
+	//just change the number below if more/less questions (currently will work with max 10)
+	var iNumberOfQuestions = 10;
 	var aIds = [];
-	for(var i = 1; i < iNumberOfQuestions + 1; i++){
-		var sId = "checkbox" + i + iRow;
-		getElement(sId).checked = true;
+	for(var iRow = 0; iRow < iNumberOfQuestions; iRow++){
+		//deselect
+		bChecked === false ? check(iRow, iColumn, false) : 
+			//select and deselect opposite
+			iColumn === 1 ? 
+				check(iRow, 2, false)&(check(iRow, iColumn, true)):
+				check(iRow, 1, false)&(check(iRow, iColumn, true))	
 	}
 }
 
-function unCheckAll(iRow) {
-	//just change the number below if more/less questions
-    	var iNumberOfQuestions = 5;
-	var aIds = [];
-	for(var i = 1; i < iNumberOfQuestions + 1; i++){
-		var sId = "checkbox" + i + iRow;
-		getElement(sId).checked = false;
-	}
-}
-
-function buttonPressResults(){
-	//store data to browser cookies
-	//this is needed if we start fresh or clear memory so we have the object parameter
+function buttonPressResults(){	
+	/*
+		store data in browser cookies
+		this is needed if we start a fresh browser session or clear memory so we have the 
+		object parameter initialised (no errors)
+	*/
 	if(!localStorage.hasOwnProperty('userSubmissionCount')){
-		localStorage.userSubmissionCount = 0;
+		createBlankLocalStorageModule();
+	}	
+	if(!localStorage.hasOwnProperty('data')){
 		createBlankLocalStorageModule();
 	}	
 	
-	//store submisson count in browser cookies
+	//(+ 1 submission count)
 	localStorage.userSubmissionCount = parseInt(localStorage.userSubmissionCount) + 1;
 	var iCount = localStorage.userSubmissionCount;
 	
-	//you can use this array to determine the user's answers to all of the questions	
-	var aCheckboxes = getAllCheckboxArray();	
-	//add this user submissionto our cookies
-	applyArrayToLocalStorage(aCheckboxes);
-		
+	//submitted answer
+	var aAnswers = getAllCheckboxArray();	
 	
-	//get cookie values (this is sum of all previous submissions)
-	//paraugs?
-	var a1 = localStorage.firstAnswer;
-	var a2 = localStorage.secondAnswer;
-	var a3 = localStorage.thirdAnswer;
-	var a4 = localStorage.fourthAnswer;
-	var a5 = localStorage.fifthAnswer;
-	var a6 = localStorage.sixthAnswer;
-	var a7 = localStorage.seventhAnswer;
-	var a8 = localStorage.eigthAnswer;
-	var a9 = localStorage.ninthAnswer;
-	var a10 = localStorage.tenthAnswer;
+	//(+ 1 submission)
+	applyArrayToLocalStorage(aAnswers);
 	
-	//this array goes to the drawing board
-	var aAnswers = [
-		{1: a1, 2: a2, k: calculateKoif(a1, a2)}, 
-		{1: a3, 2: a4, k: calculateKoif(a3, a4)}, 
-		{1: a5, 2: a6, k: calculateKoif(a5, a6)}, 
-		{1: a7, 2: a8, k: calculateKoif(a7, a8)}, 
-		{1: a9, 2: a10, k: calculateKoif(a9, a10)}
-	];
-	
-	//draw results
-	setCanvas(aAnswers)
+	//refresh table
+	buttonPressRefresh();
 }
 
+function buttonPressClearLocalStorage() { 
+	//clear browser memory
+	localStorage.clear();
+	createBlankLocalStorageModule();
+	buttonPressRefresh();
+}
+
+function buttonPressRefresh(){	
+	//just change the number below if more/less questions (currently will work with max 10)
+	var iRow = 10;
+	populateSubmission();
+	populateTable(iRow)
+}
+
+function buttonAddData(){
+		
+}
+
+/*
+
+------------------------------ ADAS functions ------------------------------
+
+*/
+
+function getAllCheckboxArray(){
+	//gets selected question answers
+	var oContainer = getElement('questionDiv');
+	var aInputs = oContainer.getElementsByTagName('input');
+	var aAnswers = [], bAnswer;
+	
+	for (var i = 0; i < aInputs.length; true) {
+		//get temp array for each question with answers
+		var aTemp = [null, null];
+		for (var keys in aTemp){
+			aTemp[keys] = aInputs[i].checked;
+			i++;
+		}
+		
+		//format temp array
+		
+		/*		
+		[false, false] = null, because we will know this answer was not answered
+		[true, false] = true, because if answer is 'yes' then answer is yes
+		[false, true] = false, because if answer is not 'yes', it is no
+		*/
+		aTemp.filter(x=>x===true).length === 0 ? bAnswer = null : bAnswer = aTemp[0]
+		
+		//push this question to answer array (same formatting as in data.js)
+		aAnswers.push({
+			question: i/2,
+			answer: bAnswer
+		})
+	}	
+	var bResult = getElement('form').children['answer'].checked;
+	aAnswers.push({result: bResult})
+	return aAnswers;
+}
 
 function calculateKoif(answer1, answer2){
 	//here we calculate the koif. ?
@@ -154,97 +223,4 @@ function calculateKoif(answer1, answer2){
 	
 	//return value
 	return result;
-}
-
-function createBlankLocalStorageModule(){
-	//create these object attributes becauses we had cleared storage
-	localStorage.firstAnswer = 0;
-	localStorage.secondAnswer = 0;
-	localStorage.thirdAnswer = 0;
-	localStorage.fourthAnswer = 0;
-	localStorage.fifthAnswer = 0;
-	localStorage.sixthAnswer = 0;
-	localStorage.seventhAnswer = 0;
-	localStorage.eigthAnswer = 0;
-	localStorage.ninthAnswer = 0;
-	localStorage.tenthAnswer = 0;
-}
-
-function setCanvas(aAnswers) { 
-	//don't wory about this
-	var canvas = getElement("myCanvas");
-	var ctx = canvas.getContext("2d");
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.font = "1em Arial";
-	var height = 20;
-	
-	//paraugs kā izskatās rezultāti?
-	/*
-	var aAnswers = [
-		{1: 0, 2: 1, k: 0.4}, 
-		{1:1, 2:5, k: 0.4}, 
-		{1:5, 2:6, k: 0.4}, 
-		{1:0, 2:5, k: 0.4}, 
-		{1:1, 2:8, k: 0.4}
-	];
-	*/
-	
-	//submission count
-	ctx.fillText("Lietotāju skaits:", 0, height);
-	ctx.fillText(localStorage.userSubmissionCount, canvas.width/4, height);
-	height = height + 40;
-	
-	//virsraksti
-	ctx.fillText("Jautājums", 0, height);
-	ctx.fillText("Atbilde1 ?", canvas.width/4, height);
-	ctx.fillText("Atbilde2 ?", canvas.width/2, height);	
-	ctx.fillText("Koificients ?", canvas.width/1.5, height);
-	height = height + 40;
-	
-	//1 jaut
-	ctx.fillText("1:", 0, height);
-	ctx.fillText(aAnswers[0][1], canvas.width/4, height);
-	ctx.fillText(aAnswers[0][2], canvas.width/2, height);	
-	ctx.fillText(aAnswers[0]["k"], canvas.width/1.5, height);
-	height = height + 40;
-	
-	//2 jaut
-	ctx.fillText("2:", 0, height);
-	ctx.fillText(aAnswers[1][1], canvas.width/4, height);
-	ctx.fillText(aAnswers[1][2], canvas.width/2, height);	
-	ctx.fillText(aAnswers[1]["k"], canvas.width/1.5, height);
-	height = height + 40;
-	
-	//3 jaut
-	ctx.fillText("3:", 0, height);
-	ctx.fillText(aAnswers[2][1], canvas.width/4, height);
-	ctx.fillText(aAnswers[2][2], canvas.width/2, height);	
-	ctx.fillText(aAnswers[2]["k"], canvas.width/1.5, height);
-	height = height + 40;
-	
-	//4 jaut
-	ctx.fillText("4:", 0, height);
-	ctx.fillText(aAnswers[3][1], canvas.width/4, height);
-	ctx.fillText(aAnswers[3][2], canvas.width/2, height);	
-	ctx.fillText(aAnswers[3]["k"], canvas.width/1.5, height);
-	height = height + 40;
-	
-	//5jaut
-	ctx.fillText("5:", 0, height);
-	ctx.fillText(aAnswers[4][1], canvas.width/4, height);
-	ctx.fillText(aAnswers[4][2], canvas.width/2, height);	
-	ctx.fillText(aAnswers[4]["k"], canvas.width/1.5, height);
-	height = height + 40;
-	
-	
-}
-
-function buttonPressClearLocalStorage() { 
-	//clear browser memory
-	localStorage.clear();
-	
-	//delete drawing board
-	var canvas = document.getElementById("myCanvas");
-	var ctx = canvas.getContext("2d");
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
 }

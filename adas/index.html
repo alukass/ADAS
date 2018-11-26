@@ -17,7 +17,9 @@
 			ADAS praktiskais uzdevums
 		</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">	</script> 
-		<script src="main.js"></script> 		
+		<script src="main.js"></script> 
+		<script src="data.js"></script> 
+		<script type="application/json" src="data.json" id="jsonFile"></script>
 		<style type="text/css"> <!-- this is CSS part for easier formatting later -->
 			.test {
 				padding: 20px;
@@ -25,23 +27,20 @@
 			.center {
 				text-align: center;
 			}
-			.container {
-				max-width:800px;
-				position: absolute;
-			}
-			.questions {
-				max-width:400px;
+			.container1 {
+				max-width:50%;
+				position: relative;
 			}
 			.button {
-				width: 120px;
-			}
-			.secondCheckbox {
-				left: 120px;
-				position: absolute;
+				width: 140px;
 			}
 			.secondLabel {
 				left: 140px;
 				position: absolute;
+			}
+			.table {
+				vertical-align: middle;
+				text-align: center;
 			}
 		</style>
 	</head>
@@ -49,93 +48,114 @@
 
 	
 	<h1> <!-- this is heading 1 (predefined by html)--> 
-		Šeit ir virsraksts
+		ADAS "Studenta universitātes apmeklējums šodien"
 	</h1>
 	
 	<hr> <!-- this is horiontal line-->
 	
-	<body style="background-color:#ccffcc" class="container">	<!-- this is where the magic happens-->
-	
-		<div> 	<!-- this is test group for demonstration purposes-->	
-			<p>sample function</p>
-			<br><!-- this is line brake -->
-			<input id="inputTest1" placeholder="first value"></input>				
-			<input id="inputTest2" placeholder="second value"></input>
-			<br> <!-- this is line brake -->	
-			<input id="inputTest3" placeholder="result"></input>
-			<button id="buttonTest" onclick="testFunctionCalculate()"> 
-				Multiply
-			</button>
-		</div>	
-		
-		<hr> <!-- this is horiontal line-->		
+	<body style="background-color:#ccffcc" class="container1">	<!-- this is where the magic happens-->
 		
 		<!-- Convenience buttons -->
-		<button onclick="checkAll(1)" class="button">Select all</button>		
-		<button onclick="checkAll(2)" class="button">Select all</button><br>
-		<button onclick="unCheckAll(1)" class="button">Deselect all</button>
-		<button onclick="unCheckAll(2)" class="button">Deselect all</button><br>		
+		<button onclick="checkAll(1, true)" class="button">Select all</button>		
+		<button onclick="checkAll(2, true)" class="button">Select all</button><br>
+		<button onclick="checkAll(1, false)" class="button">Deselect all</button>
+		<button onclick="checkAll(2, false)" class="button">Deselect all</button><br>		
 		
 		<!-- All questions/answers should go here -->
 		<div class="questions" id="questionDiv">
+		<h1>Formas iesniegšana</h1>
 			<div>
-				<p>Jautājums 1</p>
-				<input type="checkbox" id="checkbox11"></input>
-				<label>Jā</label>
-				<input type="checkbox" id="checkbox12" class="secondCheckbox"></input>
-				<label class="secondLabel">Nē</label>				
+				<p>1. Vai šodien līst lietus?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox01" onclick="swapCheckbox('02')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox02" onclick="swapCheckbox('01')"/>Nē</label>					
 			<br>
 			</div>
 			<div>
-				<p>Jautājums 2</p>
-				<input type="checkbox" id="checkbox21"></input>
-				<label>10</label>
-				<input type="checkbox" id="checkbox22" class="secondCheckbox"></input>
-				<label class="secondLabel">0</label>				
+				<p>2. Vai pēdējo 2 dienu laikā esiet ticies ar savu otru pusīti, ja Jums tāda ir? (atstāt tukšu, ja nav)</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox11" onclick="swapCheckbox('12')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox12" onclick="swapCheckbox('11')"/>Nē</label>				
 			<br>
 			</div>
 			<div>
-				<p>Jautājums 3</p>
-				<input type="checkbox" id="checkbox31"></input>
-				<label>Ir</label>
-				<input type="checkbox" id="checkbox32" class="secondCheckbox"></input>
-				<label class="secondLabel">Nav</label>				
+				<p>3. Vai Jums ir depresīvs noskaņojums?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox21" onclick="swapCheckbox('22')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox22" onclick="swapCheckbox('21')"/>Nē</label>			
 			<br>
 			</div>
 			<div>
-				<p>Jautājums 4</p>
-				<input type="checkbox" id="checkbox41"></input>
-				<label>Jā</label>
-				<input type="checkbox" id="checkbox42" class="secondCheckbox"></input>
-				<label class="secondLabel">Nē</label>				
+				<p>4. Vai Jums ir jāiet uz darbu lekciju laikā vai pēc tām?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox31" onclick="swapCheckbox('32')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox32" onclick="swapCheckbox('31')"/>Nē</label>				
 			<br>
 			</div>
 			<div>
-				<p>Jautājums 5</p>
-				<input type="checkbox" id="checkbox51"></input>
-				<label>Garšo</label>
-				<input type="checkbox" id="checkbox52" class="secondCheckbox"></input>
-				<label class="secondLabel">Negaršo</label>				
+				<p>5. Vai jūtaties izsalcis?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox41" onclick="swapCheckbox('42')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox42" onclick="swapCheckbox('41')"/>Nē</label>				
+			<br>
+			</div>
+			<div>
+				<p>6. Vai šodien ir svētku diena Jums vai kādam tuvam cilvēkam?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox51" onclick="swapCheckbox('42')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox52" onclick="swapCheckbox('41')"/>Nē</label>				
+			<br>
+			</div>
+			<div>
+				<p>7. Vai šodien ir paredzēts kontroldarbs/ieskaite?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox61" onclick="swapCheckbox('62')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox62" onclick="swapCheckbox('61')"/>Nē</label>				
+			<br>
+			</div>
+			<div>
+				<p>8. Vai šodien ir paredzēts iesniegt darbu ORTUS?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox71" onclick="swapCheckbox('72')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox72" onclick="swapCheckbox('71')"/>Nē</label>				
+			<br>
+			</div>
+			<div>
+				<p>9. Vai šodien ir nedēļas pēdējā diena universitātes apmeklējumam?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox81" onclick="swapCheckbox('82')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox82" onclick="swapCheckbox('81')"/>Nē</label>			
+			<br>
+			</div>
+			<div>
+				<p>10. Vai šodien esiet aizgulējies?</p>
+				<label class="firstLabel"><input type="checkbox" id="checkbox91" onclick="swapCheckbox('92')"/>Jā</label>
+				<label class="secondLabel"><input type="checkbox" id="checkbox92" onclick="swapCheckbox('91')"/>Nē</label>				
 			<br>
 			</div>
 		</div>
-		
+		<div>
+			<p style="padding-top:20px">Visbeidzot, universitāti apmeklējāt?</p>
+			<form id="form">
+				<input type="radio" name="answer" value="true" checked> Jā<br>
+				<input type="radio" name="answer" value="false"> Nē<br>
+			</form>
+		<br>
+		</div>
 		<!-- Last 2 buttons -->
 		<div style="margin-top:10px; margin-bottom:10px">
 			<button id="buttonConfirm" onclick="buttonPressResults()" class="button"> Iesniegt atbildes </button>
-			<button id="buttonClear" onclick="buttonPressClearLocalStorage()" class="button">Notīrīt atmiņu </button>			
+			<button id="buttonClear" onclick="buttonPressClearLocalStorage()" class="button">Notīrīt atmiņu </button>
+			<button id="buttonRefresh" onclick="buttonPressRefresh()" class="button">Atjaunināt tabulu </button>
+			<button id="buttonAdd" onclick="buttonAddData()" class="button">Pievienot esošu ZB </button>			
+		</div>
+		<hr>
+		<div style="text-align:center">
+			<label>Apstrādāto iesniegumu skaits:<input disabled="true" id="ZB" size="3" value="NA"/></label>
 		</div>
 		
-		<!-- Drawing board -->
-		<div>
-			<canvas id="myCanvas" 
-			style="border:1px solid #d3d3d3;" 
-			height="320"
-			width="600px">
-				Your browser does not support canvas
-			</canvas>
-		</div>			
-
+		<table width="100%" id="idTable" class="table">
+			<thead>
+				<th>Jautājuma nr.</th>
+				<th>Jā</th>
+				<th>Nē</th>
+				<th>Nav atbildes</th>
+			</thead>
+			<tbody>
+			</tbody>
+		<table/>
+		
 	</body>
 	
 </html>
