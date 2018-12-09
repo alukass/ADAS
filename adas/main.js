@@ -82,11 +82,18 @@ function populateTable(iRow){
 }
 
 function countCellAnswers(iRow, iCell){
+	//data = Knowledge Base = [{},{},...,{}]
 	var data = readLocalStorage("data");
+	//array of all instances for answer of this question (true, false, null)
 	var aQuestionAnswers = data.map(x=>x[iRow].answer);
+	//debugger
+	//count of all true answers
 	var iTrue = aQuestionAnswers.filter(x => x === true).length;
+	//count of all false answers
 	var iFalse = aQuestionAnswers.filter(x => x === false).length;
+	//count of all null answers
 	var iNull = aQuestionAnswers.filter(x => x === null || x === undefined).length;
+	//return true, false or null values for the asked 1,2 or 3 table cell
 	return iCell === 1 ? iTrue : iCell === 2 ? iFalse : iNull  
 } 
 
@@ -124,6 +131,10 @@ function checkAll(iColumn, bChecked) {
 			//select and deselect opposite
 			iColumn === 1 ? 
 				check(iRow, 2, false)&(check(iRow, iColumn, true)):
+					iColumn === 3 ? 
+						check(iRow, 4, false)&(check(iRow, iColumn, true)):
+						iColumn == 4 ?
+							check(iRow, 3, false)&(check(iRow, iColumn, true)):
 				check(iRow, 1, false)&(check(iRow, iColumn, true))	
 	}
 }
