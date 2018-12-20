@@ -4,7 +4,7 @@ function getData(){
 		{qustion: 2,answer: true},
 		{qustion: 3,answer: false},
 		{qustion: 4,answer: true},
-		{qustion: 5,answer: true},
+		{qustion: 5,answer: null},
 		{qustion: 6,answer: true},
 		{qustion: 7,answer: true},
 		{qustion: 8,answer: true},

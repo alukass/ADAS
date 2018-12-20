@@ -37,7 +37,7 @@ function getElement(id){
 
 function parseBoolean(bool){
 	//parse true to 1 and false to 0
-	return bool ? 1 : 0
+	return bool ? 1 : 0;
 }
 
 function check(iRow, iColumn, bChecked){
@@ -72,11 +72,26 @@ function populateTable(iRow){
 		var cell2 = row.insertCell(1);
 		var cell3 = row.insertCell(2);
 		var cell4 = row.insertCell(3);
+		var cell5 = row.insertCell(4);
 		cell1.innerHTML = i + 1;
 		cell2.innerHTML = countCellAnswers(i, 1);
 		cell3.innerHTML = countCellAnswers(i, 2);
 		cell4.innerHTML = countCellAnswers(i, 3);
+		cell5.innerHTML = getZB(i);
 	}
+	//insert last row
+	var row = newTable.insertRow(10);
+	var cell1 = row.insertCell(0);
+	var cell2 = row.insertCell(1);
+	var cell3 = row.insertCell(2);
+	var cell4 = row.insertCell(3);
+	var cell5 = row.insertCell(4);
+	cell1.innerHTML = "Uz universitāti ies";
+	cell2.innerHTML = countAnswers(1);
+	cell3.innerHTML = countAnswers(2);
+	cell4.innerHTML = countAnswers(3);	
+	cell5.innerHTML = getTrue();	
+	
 	//deletes old table data rows
 	oldTable.parentNode.replaceChild(newTable, oldTable);
 }
@@ -86,16 +101,28 @@ function countCellAnswers(iRow, iCell){
 	var data = readLocalStorage("data");
 	//array of all instances for answer of this question (true, false, null)
 	var aQuestionAnswers = data.map(x=>x[iRow].answer);
-	//debugger
 	//count of all true answers
 	var iTrue = aQuestionAnswers.filter(x => x === true).length;
 	//count of all false answers
 	var iFalse = aQuestionAnswers.filter(x => x === false).length;
+	//get PK
+	var iPK = getZB(iRow);
 	//count of all null answers
 	var iNull = aQuestionAnswers.filter(x => x === null || x === undefined).length;
-	//return true, false or null values for the asked 1,2 or 3 table cell
-	return iCell === 1 ? iTrue : iCell === 2 ? iFalse : iNull  
+	//return true, false or null values for the asked 1,2,4 or 4 table cell
+	return iCell === 1 ? iTrue : iCell === 2 ? iFalse : iCell === 4 ? iPK : iNull  
 } 
+function countAnswers(i){
+	//data = Knowledge Base = [{},{},...,{}]
+	var data = readLocalStorage("data");
+	//array of all instances for result
+	var aQuestionResults = data.map(x=>x[10].result);
+	
+	var iTrue = aQuestionResults.filter(x => x === true).length;
+	var iFalse = aQuestionResults.filter(x => x === false).length;
+	var iNull = aQuestionResults.filter(x => x === null || x === undefined).length
+	return i === 1 ? iTrue : i === 2 ? iFalse : i === 3 ? iNull : getTrue();
+}
 
 function createBlankLocalStorageModule(){
 	//create these object attributes becauses we had cleared browser cookies
@@ -113,7 +140,13 @@ function applyArrayToLocalStorage(aCheckboxes){
 	var oldAnswers = readLocalStorage("data");
 	oldAnswers.push(aCheckboxes);
 	localStorage.setItem("data", JSON.stringify(oldAnswers));
+	calculateZB(aCheckboxes);
 }
+
+function createStatements(aCheckboxes){	
+	
+}
+
 
 /*
 
@@ -170,7 +203,8 @@ function buttonPressClearLocalStorage() {
 	//clear browser memory
 	localStorage.clear();
 	createBlankLocalStorageModule();
-	buttonPressRefresh();
+	ZB = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+	buttonPressRefresh();	
 }
 
 function buttonPressRefresh(){	
@@ -180,8 +214,22 @@ function buttonPressRefresh(){
 	populateTable(iRow)
 }
 
-function buttonAddData(){
-		
+function buttonAddData(){ 
+	var oKnowledgeBase = getData();	
+	for (var i = 0; i < oKnowledgeBase.length; i++){		
+		applyArrayToLocalStorage(oKnowledgeBase[i]);
+		//(+ 1 submission count)
+		localStorage.userSubmissionCount = parseInt(localStorage.userSubmissionCount) + 1;
+		var iCount = localStorage.userSubmissionCount;
+	}
+	buttonPressRefresh();
+}
+
+function willIGoToUniversity(){
+	var yes = "Jā :)";
+	var no = "Nē :(";
+	var sAnswer = "Dunno";
+	window.alert(sAnswer);
 }
 
 /*
@@ -189,6 +237,46 @@ function buttonAddData(){
 ------------------------------ ADAS functions ------------------------------
 
 */
+
+//10 starting values, 11 is for 'true', 12 is for 'false'
+var ZB = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+
+//10 end values
+var ZBnew = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+
+function getZB(iRow){
+	//iRow = {0,...,9}	
+	return ZB[iRow];
+}
+
+function getTrue(){
+	return `ies ${ZB[10]}, neies ${ZB[11]}`;
+}
+
+function calculatePK(dPK) {
+	//0.1 because in this task it will be always 0.1
+	return dPK + (1 - dPK) * 0.1;
+}
+
+function calculateZB(aCheckboxes) {
+	
+	var aIndexes = aCheckboxes.map((x, index, arr)=>{if(x.answer===true){return index}});
+	var aFilteredIndexes = aIndexes.filter(x=>x!==undefined);
+	
+	for (var j = 0; j < aFilteredIndexes.length; j++){
+		for(var i = 0; i < ZB.length; i++){
+			if (i == aFilteredIndexes[j]) {
+				ZB[i] = calculatePK(ZB[i]);
+			}
+		}
+	}
+	var bResult = aCheckboxes[10].result;
+	if (bResult){
+		ZB[10] = calculatePK(ZB[10]);
+	} else {
+		ZB[11] = calculatePK(ZB[11]);
+	}
+}
 
 function getAllCheckboxArray(){
 	//gets selected question answers
