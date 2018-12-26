@@ -190,7 +190,7 @@ function buttonPressResults(){
 	var iCount = localStorage.userSubmissionCount;
 	
 	//submitted answer
-	var aAnswers = getAllCheckboxArray();	
+	var aAnswers = getAllCheckboxArray("questionDiv");	
 	
 	//(+ 1 submission)
 	applyArrayToLocalStorage(aAnswers);
@@ -226,9 +226,28 @@ function buttonAddData(){
 }
 
 function willIGoToUniversity(){
-	var yes = "Jā :)";
-	var no = "Nē :(";
-	var sAnswer = "Dunno";
+	var aAnswers = getAllCheckboxArray("questionDiv2");
+	
+	var aIndexes = aAnswers.map((x, index, arr)=>{if(x.answer===true){return index}});
+	var aFilteredIndexes = aIndexes.filter(x=>x!==undefined);
+	
+	var arrPK = [];
+	for (var i = 0; i < aFilteredIndexes.length; i++){
+		arrPK.push(ZB[aFilteredIndexes[i]]);
+	}
+	
+	var goPK = arrPK.length > 0 ? Math.min.apply(Math, arrPK) * ZB[ZB.length-2] : ZB[ZB.length-2];
+	var notGoPK = arrPK.length > 0 ? Math.min.apply(Math, arrPK) * ZB[ZB.length-1] : ZB[ZB.length-1];
+	var bAnswer = goPK >= notGoPK ? true : false;
+	
+	var sAnswer = "";
+	if(bAnswer===true){
+		sAnswer = `Jā, PK ies = ${goPK}, PK neies = ${notGoPK}`;
+	} else if(bAnswer === false){
+		sAnswer = `Nē, PK ies = ${goPK}, PK neies = ${notGoPK}`;
+	} else {
+		sAnswer = `Iespējams, PK ies = ${goPK}, PK neies = ${notGoPK}`
+	}
 	window.alert(sAnswer);
 }
 
@@ -278,9 +297,9 @@ function calculateZB(aCheckboxes) {
 	}
 }
 
-function getAllCheckboxArray(){
+function getAllCheckboxArray(div){
 	//gets selected question answers
-	var oContainer = getElement('questionDiv');
+	var oContainer = getElement(div);
 	var aInputs = oContainer.getElementsByTagName('input');
 	var aAnswers = [], bAnswer;
 	
